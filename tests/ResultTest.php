@@ -13,25 +13,26 @@ namespace LayerShifter\TLDExtract\Tests;
 
 use LayerShifter\TLDExtract\Extract;
 use LayerShifter\TLDExtract\Result;
+use PHPUnit\Framework\TestCase;
 
 /**
  * Test that coverages all cases of LayerShifter\TLDExtract\Result.
  */
-class ResultTest extends \PHPUnit_Framework_TestCase
+class ResultTest extends TestCase
 {
     /**
      * Object for tests.
      *
      * @var Result
      */
-    private $entity;
+    private Result $entity;
 
     /**
      * Method that setups test's environment.
      *
      * @return void
      */
-    public function setUp()
+    public function setUp(): void
     {
         $this->entity = new Result(null, '192.168.0.1', null);
     }
@@ -41,7 +42,7 @@ class ResultTest extends \PHPUnit_Framework_TestCase
      *
      * @return void
      */
-    public function testConstruct()
+    public function testConstruct(): void
     {
         static::assertNull($this->entity->subdomain);
         static::assertEquals('192.168.0.1', $this->entity->hostname);
@@ -71,7 +72,7 @@ class ResultTest extends \PHPUnit_Framework_TestCase
      *
      * @return void
      */
-    public function testDomain()
+    public function testDomain(): void
     {
         $extract = new Extract();
         $result = $extract->parse('github.com');
@@ -89,7 +90,7 @@ class ResultTest extends \PHPUnit_Framework_TestCase
      *
      * @return void
      */
-    public function testSubDomain()
+    public function testSubDomain(): void
     {
         $extract = new Extract();
         $result = $extract->parse('shop.github.com');
@@ -109,7 +110,7 @@ class ResultTest extends \PHPUnit_Framework_TestCase
      *
      * @return void
      */
-    public function testSubdomains()
+    public function testSubdomains(): void
     {
         $extract = new Extract();
         $result = $extract->parse('new.shop.github.com');
@@ -129,7 +130,7 @@ class ResultTest extends \PHPUnit_Framework_TestCase
      *
      * @return void
      */
-    public function testIp()
+    public function testIp(): void
     {
         $extract = new Extract();
         $result = $extract->parse('192.168.0.1');
@@ -147,7 +148,7 @@ class ResultTest extends \PHPUnit_Framework_TestCase
      *
      * @return void
      */
-    public function testToJson()
+    public function testToJson(): void
     {
         static::assertJsonStringEqualsJsonString(
             json_encode((object)[
@@ -164,7 +165,7 @@ class ResultTest extends \PHPUnit_Framework_TestCase
      *
      * @return void
      */
-    public function testToString()
+    public function testToString(): void
     {
         static::assertEquals('192.168.0.1', (string)$this->entity);
     }
@@ -174,7 +175,7 @@ class ResultTest extends \PHPUnit_Framework_TestCase
      *
      * @return void
      */
-    public function testIsset()
+    public function testIsset(): void
     {
         static::assertNull($this->entity->subdomain);
         static::assertNotNull($this->entity->hostname);
@@ -191,9 +192,9 @@ class ResultTest extends \PHPUnit_Framework_TestCase
      *
      * @return void
      */
-    public function testSet()
+    public function testSet(): void
     {
-        $this->setExpectedException('LogicException');
+        $this->expectException('LogicException');
         $this->entity->offsetSet('hostname', 'another-domain');
     }
 
@@ -202,10 +203,10 @@ class ResultTest extends \PHPUnit_Framework_TestCase
      *
      * @return void
      */
-    public function testSetViaProperty()
+    public function testSetViaProperty(): void
     {
-        $this->setExpectedException('LogicException');
-        $this->entity->hostname = 'another-domain';
+        $this->expectException('LogicException');
+        $this->entity['hostname'] = 'another-domain';
     }
 
     /**
@@ -213,9 +214,9 @@ class ResultTest extends \PHPUnit_Framework_TestCase
      *
      * @return void
      */
-    public function testGet()
+    public function testGet(): void
     {
-        $this->setExpectedException('OutOfRangeException');
+        $this->expectException('OutOfRangeException');
 
         /* @noinspection PhpUndefinedFieldInspection
          * Test for not existing field
@@ -228,9 +229,9 @@ class ResultTest extends \PHPUnit_Framework_TestCase
      *
      * @return void
      */
-    public function testOffsetSet()
+    public function testOffsetSet(): void
     {
-        $this->setExpectedException('LogicException');
+        $this->expectException('LogicException');
         $this->entity['hostname'] = 'another-domain';
     }
 
@@ -239,7 +240,7 @@ class ResultTest extends \PHPUnit_Framework_TestCase
      *
      * @return void
      */
-    public function testOffsetGet()
+    public function testOffsetGet(): void
     {
         static::assertEquals('192.168.0.1', $this->entity['hostname']);
     }
@@ -249,9 +250,9 @@ class ResultTest extends \PHPUnit_Framework_TestCase
      *
      * @return void
      */
-    public function testOffsetUnset()
+    public function testOffsetUnset(): void
     {
-        $this->setExpectedException('LogicException');
+        $this->expectException('LogicException');
         unset($this->entity['hostname']);
     }
 }
