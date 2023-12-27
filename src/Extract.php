@@ -362,7 +362,7 @@ class Extract
      *
      * @return bool
      */
-    protected function suffixExists($entry)
+    protected function suffixExists($entry): bool
     {
         if (!$this->suffixStore->isExists($entry)) {
             return false;
