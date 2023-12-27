@@ -1,5 +1,5 @@
 {
-  "name": "layershifter/tld-extract",
+  "name": "drom/tld-extract",
   "type": "library",
   "description": "TLDExtract, library for extracting parts of domain, e.q. domain parser",
   "keywords": [
