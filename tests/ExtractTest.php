@@ -10,151 +10,32 @@
 
 namespace LayerShifter\TLDExtract\Tests;
 
-use LayerShifter\TLDDatabase\Store;
 use LayerShifter\TLDExtract\Exceptions\RuntimeException;
 use LayerShifter\TLDExtract\Extract;
-use LayerShifter\TLDExtract\Result;
+use PHPUnit\Framework\TestCase;
 
 /**
  * Tests for Extract class.
  */
-class ExtractTest extends \PHPUnit_Framework_TestCase
+class ExtractTest extends TestCase
 {
-
-    /**
-     * @var Extract Object of Extract class
-     */
-    private $extract;
-
-    /**
-     * Bootstrap method.
-     *
-     * @return void
-     */
-    protected function setUp()
-    {
-        $this->extract = new Extract();
-
-        parent::setUp();
-    }
-
-    /**
-     * Tests constructor().
-     *
-     * @void
-     */
-    public function testConstructor()
-    {
-        $defaultMode = Extract::MODE_ALLOW_ICANN
-            | Extract::MODE_ALLOW_PRIVATE
-            | Extract::MODE_ALLOW_NOT_EXISTING_SUFFIXES;
-
-        // Variant 1.
-
-        $extract = new Extract();
-
-        static::assertAttributeInstanceOf(Store::class, 'suffixStore', $extract);
-        static::assertAttributeEquals($defaultMode, 'extractionMode', $extract);
-        static::assertAttributeEquals(Result::class, 'resultClassName', $extract);
-
-        // Variant 2.
-
-        $extract = new Extract(__DIR__ . '/sample-database.php');
-
-        static::assertAttributeInstanceOf(Store::class, 'suffixStore', $extract);
-        static::assertAttributeEquals($defaultMode, 'extractionMode', $extract);
-        static::assertAttributeEquals(Result::class, 'resultClassName', $extract);
-
-        // Variant 3.
-
-        $extract = new Extract(null, SampleResult::class);
-
-        static::assertAttributeInstanceOf(Store::class, 'suffixStore', $extract);
-        static::assertAttributeEquals($defaultMode, 'extractionMode', $extract);
-        static::assertAttributeEquals(SampleResult::class, 'resultClassName', $extract);
-
-        // Variant 4.
-
-        $extract = new Extract(null, null, Extract::MODE_ALLOW_ICANN);
-
-        static::assertAttributeInstanceOf(Store::class, 'suffixStore', $extract);
-        static::assertAttributeEquals(Extract::MODE_ALLOW_ICANN, 'extractionMode', $extract);
-        static::assertAttributeEquals(Result::class, 'resultClassName', $extract);
-    }
-
-    /**
-     * Tests constructor() exception for non-existence result class.
-     *
-     * @void
-     */
-    public function testConstructorNonExistenceClass()
-    {
-        $this->setExpectedException(RuntimeException::class, 'is not defined');
-        new Extract(null, 'NonExistenceClass');
-    }
+    private Extract $extract;
 
     /**
      * Tests constructor() exception for result class that not implements result interface.
-     *
-     * @void
      */
-    public function testConstructorNotImplements()
+    public function testConstructorNotImplements(): void
     {
-        $this->setExpectedException(RuntimeException::class, 'not implements ResultInterface');
+        $this->expectException(RuntimeException::class);
         new Extract(null, Extract::class);
     }
 
     /**
-     * Tests setExtractionMode() method.
-     *
-     * @void
-     */
-    public function testSetExtractionMode()
-    {
-        $extract = new Extract();
-
-        // Variant 1.
-
-        $extract->setExtractionMode(null);
-        static::assertAttributeEquals(
-            Extract::MODE_ALLOW_ICANN | Extract::MODE_ALLOW_PRIVATE | Extract::MODE_ALLOW_NOT_EXISTING_SUFFIXES,
-            'extractionMode',
-            $extract
-        );
-
-        // Variant 2.
-
-        $extract->setExtractionMode(Extract::MODE_ALLOW_ICANN);
-        static::assertAttributeEquals(Extract::MODE_ALLOW_ICANN, 'extractionMode', $extract);
-
-        // Variant 3.
-
-        $extract->setExtractionMode(Extract::MODE_ALLOW_PRIVATE);
-        static::assertAttributeEquals(Extract::MODE_ALLOW_PRIVATE, 'extractionMode', $extract);
-
-        // Variant 4.
-
-        $extract->setExtractionMode(Extract::MODE_ALLOW_NOT_EXISTING_SUFFIXES);
-        static::assertAttributeEquals(Extract::MODE_ALLOW_NOT_EXISTING_SUFFIXES, 'extractionMode', $extract);
-
-        // Variant 5.
-
-        $extract->setExtractionMode(Extract::MODE_ALLOW_PRIVATE | Extract::MODE_ALLOW_NOT_EXISTING_SUFFIXES);
-        static::assertAttributeEquals(
-            Extract::MODE_ALLOW_PRIVATE | Extract::MODE_ALLOW_NOT_EXISTING_SUFFIXES,
-            'extractionMode',
-            $extract
-        );
-    }
-
-    /**
      * Tests setExtractionMode() exception for invalid mode type.
-     *
-     * @void
      */
-    public function testSetExtractionModeInvalidArgumentType()
+    public function testSetExtractionModeInvalidArgumentType(): void
     {
-        $this->setExpectedException(RuntimeException::class, 'Invalid argument type, extractionMode must be integer');
+        $this->expectException(RuntimeException::class);
 
         $extract = new Extract();
         $extract->setExtractionMode('a');
@@ -162,31 +43,13 @@ class ExtractTest extends \PHPUnit_Framework_TestCase
 
     /**
      * Tests setExtractionMode() exception for invalid mode value.
-     *
-     * @void
      */
-    public function testSetExtractionModeInvalidArgumentValue()
+    public function testSetExtractionModeInvalidArgumentValue(): void
     {
-        $this->setExpectedException(
-            RuntimeException::class,
-            'Invalid argument type, extractionMode must be one of defined constants'
-        );
+        $this->expectException(RuntimeException::class);
 
         $extract = new Extract();
         $extract->setExtractionMode(-10);
-    }
-
-    /**
-     * Tests parsing result.
-     *
-     * @param string $hostname       Hostname for parsing
-     * @param string $expectedResult Expected result of parsing
-     *
-     * @return void
-     */
-    private function checkPublicDomain($hostname, $expectedResult)
-    {
-        static::assertEquals($expectedResult, $this->extract->parse($hostname)->getRegistrableDomain());
     }
 
     /**
@@ -194,10 +57,8 @@ class ExtractTest extends \PHPUnit_Framework_TestCase
      *
      * @see       http://mxr.mozilla.org/mozilla-central/source/netwerk/test/unit/data/test_psl.txt?raw=1
      * @copyright Public Domain. https://creativecommons.org/publicdomain/zero/1.0/
-     *
-     * @return void
      */
-    public function testParse()
+    public function testParse(): void
     {
         // null input.
 
@@ -323,14 +184,23 @@ class ExtractTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
+     * Tests parsing result.
+     *
+     * @param null|string $hostname       Hostname for parsing
+     * @param null|string $expectedResult Expected result of parsing
+     */
+    private function checkPublicDomain(?string $hostname, ?string $expectedResult): void
+    {
+        self::assertEquals($expectedResult, $this->extract->parse($hostname)->getRegistrableDomain());
+    }
+
+    /**
      * Real world test case for IDN. Uses official test data.
      *
      * @see       http://mxr.mozilla.org/mozilla-central/source/netwerk/test/unit/data/test_psl.txt?raw=1
      * @copyright Public Domain. https://creativecommons.org/publicdomain/zero/1.0/
-     *
-     * @return void
      */
-    public function testParseIdn()
+    public function testParseIdn(): void
     {
         // IDN labels.
 
@@ -358,24 +228,9 @@ class ExtractTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Tests parsing result.
-     *
-     * @param string $hostname       Hostname for parsing
-     * @param string $expectedResult Expected result of parsing
-     *
-     * @return void
-     */
-    private function checkPublicSuffix($hostname, $expectedResult)
-    {
-        static::assertEquals($expectedResult, $this->extract->parse($hostname)->getSuffix());
-    }
-
-    /**
      * Custom tests for URL's parsing.
-     *
-     * @return void
      */
-    public function testParseUrls()
+    public function testParseUrls(): void
     {
         // Base tests.
 
@@ -399,21 +254,17 @@ class ExtractTest extends \PHPUnit_Framework_TestCase
      * Tests parsing result.
      *
      * @param string $hostname       Hostname for parsing
-     * @param string $expectedResult Expected result of parsing
-     *
-     * @return void
+     * @param null|string $expectedResult Expected result of parsing
      */
-    private function checkHost($hostname, $expectedResult)
+    private function checkPublicSuffix(string $hostname, ?string $expectedResult): void
     {
-        static::assertEquals($expectedResult, $this->extract->parse($hostname)->getHostname());
+        self::assertEquals($expectedResult, $this->extract->parse($hostname)->getSuffix());
     }
 
     /**
      * Custom tests for IP's parsing.
-     *
-     * @return void
      */
-    public function testParseIp()
+    public function testParseIp(): void
     {
         // Test IPv4.
 
@@ -432,114 +283,124 @@ class ExtractTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test for parse() withExtract::MODE_ALLOW_ICANN | Extract::MODE_ALLOW_PRIVATE options.
+     * Tests parsing result.
      *
-     * @return void
+     * @param string $hostname       Hostname for parsing
+     * @param string $expectedResult Expected result of parsingvoid
      */
-    public function testParseOnlyExisting()
+    private function checkHost(string $hostname, string $expectedResult): void
+    {
+        self::assertEquals($expectedResult, $this->extract->parse($hostname)->getHostname());
+    }
+
+    /**
+     * Test for parse() withExtract::MODE_ALLOW_ICANN | Extract::MODE_ALLOW_PRIVATE options.
+     */
+    public function testParseOnlyExisting(): void
     {
         $extract = new Extract(null, null, Extract::MODE_ALLOW_ICANN | Extract::MODE_ALLOW_PRIVATE);
 
-        static::assertNull($extract->parse('example.example')->getSuffix());
-        static::assertNull($extract->parse('a.example.example')->getSuffix());
-        static::assertNull($extract->parse('a.b.example.example')->getSuffix());
-        static::assertNull($extract->parse('localhost')->getSuffix());
-        static::assertNull($extract->parse('example.localhost')->getSuffix());
+        self::assertNull($extract->parse('example.example')->getSuffix());
+        self::assertNull($extract->parse('a.example.example')->getSuffix());
+        self::assertNull($extract->parse('a.b.example.example')->getSuffix());
+        self::assertNull($extract->parse('localhost')->getSuffix());
+        self::assertNull($extract->parse('example.localhost')->getSuffix());
 
-        static::assertEquals('com', $extract->parse('example.com')->getSuffix());
-        static::assertEquals('com', $extract->parse('a.example.com')->getSuffix());
-        static::assertEquals('example.com', $extract->parse('a.example.com')->getRegistrableDomain());
+        self::assertEquals('com', $extract->parse('example.com')->getSuffix());
+        self::assertEquals('com', $extract->parse('a.example.com')->getSuffix());
+        self::assertEquals('example.com', $extract->parse('a.example.com')->getRegistrableDomain());
     }
 
     /**
      * Test for parse() with Extract::MODE_ALLOW_ICANN | Extract::MODE_ALLOW_PRIVATE options.
-     *
-     * @return void
      */
-    public function testParseDisablePrivate()
+    public function testParseDisablePrivate(): void
     {
         $extract = new Extract(null, null, Extract::MODE_ALLOW_ICANN | Extract::MODE_ALLOW_NOT_EXISTING_SUFFIXES);
 
-        static::assertEquals('example', $extract->parse('example.example')->getSuffix());
-        static::assertEquals('example', $extract->parse('a.example.example')->getSuffix());
-        static::assertEquals('example', $extract->parse('a.b.example.example')->getSuffix());
-        static::assertEquals('localhost', $extract->parse('example.localhost')->getSuffix());
-        static::assertNull($extract->parse('localhost')->getSuffix());
+        self::assertEquals('example', $extract->parse('example.example')->getSuffix());
+        self::assertEquals('example', $extract->parse('a.example.example')->getSuffix());
+        self::assertEquals('example', $extract->parse('a.b.example.example')->getSuffix());
+        self::assertEquals('localhost', $extract->parse('example.localhost')->getSuffix());
+        self::assertNull($extract->parse('localhost')->getSuffix());
 
-        static::assertEquals('com', $extract->parse('example.com')->getSuffix());
-        static::assertEquals('com', $extract->parse('a.example.com')->getSuffix());
-        static::assertEquals('example.com', $extract->parse('a.example.com')->getRegistrableDomain());
+        self::assertEquals('com', $extract->parse('example.com')->getSuffix());
+        self::assertEquals('com', $extract->parse('a.example.com')->getSuffix());
+        self::assertEquals('example.com', $extract->parse('a.example.com')->getRegistrableDomain());
 
-        static::assertEquals('com', $extract->parse('a.blogspot.com')->getSuffix());
-        static::assertEquals('com', $extract->parse('a.b.blogspot.com')->getSuffix());
-        static::assertEquals('blogspot.com', $extract->parse('a.blogspot.com')->getRegistrableDomain());
+        self::assertEquals('com', $extract->parse('a.blogspot.com')->getSuffix());
+        self::assertEquals('com', $extract->parse('a.b.blogspot.com')->getSuffix());
+        self::assertEquals('blogspot.com', $extract->parse('a.blogspot.com')->getRegistrableDomain());
     }
 
     /**
      * Test for parse() with MODE_ALLOW_ICANN option.
-     *
-     * @return void
      */
-    public function testParseICANNOption()
+    public function testParseICANNOption(): void
     {
         $extract = new Extract(null, null, Extract::MODE_ALLOW_ICANN);
 
-        static::assertNull($extract->parse('example.example')->getSuffix());
-        static::assertNull($extract->parse('a.example.example')->getSuffix());
-        static::assertNull($extract->parse('a.b.example.example')->getSuffix());
-        static::assertNull($extract->parse('localhost')->getSuffix());
-        static::assertNull($extract->parse('example.localhost')->getSuffix());
+        self::assertNull($extract->parse('example.example')->getSuffix());
+        self::assertNull($extract->parse('a.example.example')->getSuffix());
+        self::assertNull($extract->parse('a.b.example.example')->getSuffix());
+        self::assertNull($extract->parse('localhost')->getSuffix());
+        self::assertNull($extract->parse('example.localhost')->getSuffix());
 
-        static::assertEquals('com', $extract->parse('example.com')->getSuffix());
-        static::assertEquals('com', $extract->parse('a.example.com')->getSuffix());
-        static::assertEquals('example.com', $extract->parse('a.example.com')->getRegistrableDomain());
-        static::assertEquals('com', $extract->parse('a.blogspot.com')->getSuffix());
-        static::assertEquals('com', $extract->parse('a.b.blogspot.com')->getSuffix());
-        static::assertEquals('blogspot.com', $extract->parse('a.blogspot.com')->getRegistrableDomain());
+        self::assertEquals('com', $extract->parse('example.com')->getSuffix());
+        self::assertEquals('com', $extract->parse('a.example.com')->getSuffix());
+        self::assertEquals('example.com', $extract->parse('a.example.com')->getRegistrableDomain());
+        self::assertEquals('com', $extract->parse('a.blogspot.com')->getSuffix());
+        self::assertEquals('com', $extract->parse('a.b.blogspot.com')->getSuffix());
+        self::assertEquals('blogspot.com', $extract->parse('a.blogspot.com')->getRegistrableDomain());
     }
 
     /**
      * Test for fixQueryPart() method.
-     *
-     * @return void
      */
-    public function fixQueryPart()
+    public function fixQueryPart(): void
     {
         $method = new \ReflectionMethod(Extract::class, 'fixQueryPart');
         $method->setAccessible(true);
 
-        static::assertEquals('http://example.com/?query', $method->invoke($this->extract), 'http://example.com/?query');
-        static::assertEquals('http://example.com/?query', $method->invoke($this->extract), 'http://example.com?query');
+        self::assertEquals('http://example.com/?query', $method->invoke($this->extract), 'http://example.com/?query');
+        self::assertEquals('http://example.com/?query', $method->invoke($this->extract), 'http://example.com?query');
 
-        static::assertEquals('http://example.com/#hash', $method->invoke($this->extract), 'http://example.com/#hash');
-        static::assertEquals('http://example.com/#hash', $method->invoke($this->extract), 'http://example.com#hash');
+        self::assertEquals('http://example.com/#hash', $method->invoke($this->extract), 'http://example.com/#hash');
+        self::assertEquals('http://example.com/#hash', $method->invoke($this->extract), 'http://example.com#hash');
 
-        static::assertEquals('http://example.com/?query#hash', $method->invoke($this->extract), 'http://example.com?query#hash');
+        self::assertEquals('http://example.com/?query#hash', $method->invoke($this->extract),
+            'http://example.com?query#hash');
     }
 
     /**
      * Test for subdomain with underscore.
-     *
-     * @return void
      */
-    public function testParseUnderscore()
+    public function testParseUnderscore(): void
     {
-        static::assertEquals('com', $this->extract->parse('dkim._domainkey.example.com')->getSuffix());
-        static::assertEquals('example', $this->extract->parse('dkim._domainkey.example.com')->getHostname());
-        static::assertEquals('dkim._domainkey', $this->extract->parse('dkim._domainkey.example.com')->getSubdomain());
-        static::assertEquals(array('dkim','_domainkey'), $this->extract->parse('dkim._domainkey.example.com')->getSubdomains());
+        self::assertEquals('com', $this->extract->parse('dkim._domainkey.example.com')->getSuffix());
+        self::assertEquals('example', $this->extract->parse('dkim._domainkey.example.com')->getHostname());
+        self::assertEquals('dkim._domainkey', $this->extract->parse('dkim._domainkey.example.com')->getSubdomain());
+        self::assertEquals(array('dkim', '_domainkey'),
+            $this->extract->parse('dkim._domainkey.example.com')->getSubdomains());
 
-        static::assertEquals('com', $this->extract->parse('_spf.example.com')->getSuffix());
-        static::assertEquals('example', $this->extract->parse('_spf.example.com')->getHostname());
-        static::assertEquals('_spf', $this->extract->parse('_spf.example.com')->getSubdomain());
+        self::assertEquals('com', $this->extract->parse('_spf.example.com')->getSuffix());
+        self::assertEquals('example', $this->extract->parse('_spf.example.com')->getHostname());
+        self::assertEquals('_spf', $this->extract->parse('_spf.example.com')->getSubdomain());
 
-        static::assertEquals('com', $this->extract->parse('foo_.example.com')->getSuffix());
-        static::assertEquals('example', $this->extract->parse('foo_.example.com')->getHostname());
-        static::assertEquals('foo_', $this->extract->parse('foo_.example.com')->getSubdomain());
+        self::assertEquals('com', $this->extract->parse('foo_.example.com')->getSuffix());
+        self::assertEquals('example', $this->extract->parse('foo_.example.com')->getHostname());
+        self::assertEquals('foo_', $this->extract->parse('foo_.example.com')->getSubdomain());
 
-        static::assertEquals('com', $this->extract->parse('bar.foo_.example.com')->getSuffix());
-        static::assertEquals('example', $this->extract->parse('bar.foo_.example.com')->getHostname());
-        static::assertEquals('bar.foo_', $this->extract->parse('bar.foo_.example.com')->getSubdomain());
-        static::assertEquals(array('bar', 'foo_'), $this->extract->parse('bar.foo_.example.com')->getSubdomains());
+        self::assertEquals('com', $this->extract->parse('bar.foo_.example.com')->getSuffix());
+        self::assertEquals('example', $this->extract->parse('bar.foo_.example.com')->getHostname());
+        self::assertEquals('bar.foo_', $this->extract->parse('bar.foo_.example.com')->getSubdomain());
+        self::assertEquals(array('bar', 'foo_'), $this->extract->parse('bar.foo_.example.com')->getSubdomains());
+    }
+
+    protected function setUp(): void
+    {
+        $this->extract = new Extract();
+
+        parent::setUp();
     }
 }

@@ -11,19 +11,18 @@
 namespace LayerShifter\TLDExtract\Tests;
 
 use LayerShifter\TLDExtract\Extract;
+use PHPUnit\Framework\TestCase;
 
 /**
  * Tests for static.php.
  */
-class StaticTest extends \PHPUnit_Framework_TestCase
+class StaticTest extends TestCase
 {
 
     /**
      * Tests for tld_extract() function.
-     *
-     * @return void
      */
-    public function testExtract()
+    public function testExtract(): void
     {
         $result = tld_extract('http://www.domain.com');
 

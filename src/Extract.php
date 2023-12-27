@@ -60,19 +60,19 @@ class Extract
     /**
      * @var int Value of extraction options.
      */
-    private $extractionMode;
+    private int $extractionMode;
     /**
      * @var string Name of class that will store results of parsing.
      */
-    private $resultClassName;
+    private string $resultClassName;
     /**
      * @var IDN Object of TLDExtract\IDN class.
      */
-    private $idn;
+    private IDN $idn;
     /**
      * @var Store Object of TLDDatabase\Store class.
      */
-    private $suffixStore;
+    private Store $suffixStore;
 
     /**
      * Factory constructor.
@@ -83,8 +83,11 @@ class Extract
      *
      * @throws RuntimeException
      */
-    public function __construct($databaseFile = null, $resultClassName = null, $extractionMode = null)
-    {
+    public function __construct(
+        ?string $databaseFile = null,
+        ?string $resultClassName = null,
+        ?int $extractionMode = null
+    ) {
         $this->idn = new IDN();
         $this->suffixStore = new Store($databaseFile);
         $this->resultClassName = Result::class;
@@ -367,7 +370,7 @@ class Extract
 
         $type = $this->suffixStore->getType($entry);
 
-        if ($this->extractionMode & static::MODE_ALLOW_ICANN && $type === Store::TYPE_ICANN) {
+        if ($this->extractionMode & static::MODE_ALLOW_ICANN && $type === Store::TYPE_ICCAN) {
             return true;
         }
 
