@@ -18,12 +18,8 @@ interface ResultInterface
 
     /**
      * Class that implements ResultInterface must have following constructor.
-     *
-     * @param null|string $subdomain
-     * @param null|string $hostname
-     * @param null|string $suffix
      */
-    public function __construct($subdomain, $hostname, $suffix);
+    public function __construct(?string $subdomain, ?string $hostname, ?string $suffix);
 
     /**
      * Returns subdomain if it exists.

@@ -10,7 +10,11 @@
 
 namespace LayerShifter\TLDExtract;
 
+use ArrayAccess;
 use LayerShifter\TLDSupport\Helpers\IP;
+use LogicException;
+
+use function json_encode;
 
 /**
  * This class holds the components of a domain name.
@@ -24,35 +28,28 @@ use LayerShifter\TLDSupport\Helpers\IP;
  * @property-read null|string $hostname
  * @property-read null|string $suffix
  */
-class Result implements \ArrayAccess, ResultInterface
+class Result implements ArrayAccess, ResultInterface
 {
     /**
      * The subdomain. For example, the subdomain of "a.b.google.com" is "a.b".
      *
      * @var null|string
      */
-    private $subdomain;
+    private ?string $subdomain;
     /**
      * Hostname part of domain or IP-address. For example, in "a.b.google.com" the registered domain is "google".
      *
      * @var null|string
      */
-    private $hostname;
+    private ?string $hostname;
     /**
      * The top-level domain / public suffix. For example: "com", "co.uk", "act.edu.au".
      *
      * @var null|string
      */
-    private $suffix;
+    private ?string $suffix;
 
-    /**
-     * Constructor of class.
-     *
-     * @param null|string $subdomain
-     * @param null|string $hostname
-     * @param null|string $suffix
-     */
-    public function __construct($subdomain, $hostname, $suffix)
+    public function __construct(?string $subdomain, ?string $hostname, ?string $suffix)
     {
         $this->subdomain = $subdomain;
         $this->hostname = $hostname;
@@ -61,50 +58,40 @@ class Result implements \ArrayAccess, ResultInterface
 
     /**
      * Returns subdomain if it exists.
-     *
-     * @return null|string
      */
-    public function getSubdomain()
+    public function getSubdomain(): ?string
     {
         return $this->subdomain;
     }
 
     /**
      * Return subdomains if they exist, example subdomain is "www.news", method will return array ['www', 'news'].
-     *
-     * @return array
      */
-    public function getSubdomains()
+    public function getSubdomains(): array
     {
         return null === $this->subdomain ? array() : explode('.', $this->subdomain);
     }
 
     /**
      * Returns hostname if it exists.
-     *
-     * @return null|string
      */
-    public function getHostname()
+    public function getHostname(): ?string
     {
         return $this->hostname;
     }
 
     /**
      * Returns suffix if it exists.
-     *
-     * @return null|string
      */
-    public function getSuffix()
+    public function getSuffix(): ?string
     {
         return $this->suffix;
     }
 
     /**
      * Method that returns full host record.
-     *
-     * @return string
      */
-    public function getFullHost()
+    public function getFullHost(): ?string
     {
         // Case 1: Host hasn't suffix, possibly IP.
 
@@ -125,10 +112,8 @@ class Result implements \ArrayAccess, ResultInterface
 
     /**
      * Returns registrable domain or null.
-     *
-     * @return null|string
      */
-    public function getRegistrableDomain()
+    public function getRegistrableDomain(): ?string
     {
         if (null === $this->suffix) {
             return null;
@@ -139,20 +124,16 @@ class Result implements \ArrayAccess, ResultInterface
 
     /**
      * Returns true if domain is valid.
-     *
-     * @return bool
      */
-    public function isValidDomain()
+    public function isValidDomain(): bool
     {
         return null !== $this->getRegistrableDomain();
     }
 
     /**
      * Returns true is result is IP.
-     *
-     * @return bool
      */
-    public function isIp()
+    public function isIp(): bool
     {
         return null === $this->suffix && IP::isValid($this->hostname);
     }
@@ -161,10 +142,8 @@ class Result implements \ArrayAccess, ResultInterface
      * Magic method for run isset on private params.
      *
      * @param string $name Field name
-     *
-     * @return bool
      */
-    public function __isset($name)
+    public function __isset($name): bool
     {
         return property_exists($this, $name);
     }
@@ -174,19 +153,17 @@ class Result implements \ArrayAccess, ResultInterface
      *
      * @return string
      */
-    public function __toString()
+    public function __toString(): string
     {
-        return $this->getFullHost();
+        return (string)$this->getFullHost();
     }
 
     /**
      * Whether or not an offset exists.
      *
      * @param mixed $offset An offset to check for
-     *
-     * @return bool
      */
-    public function offsetExists($offset)
+    public function offsetExists(mixed $offset): bool
     {
         return property_exists($this, $offset);
     }
@@ -200,7 +177,7 @@ class Result implements \ArrayAccess, ResultInterface
      *
      * @return mixed
      */
-    public function offsetGet($offset)
+    public function offsetGet($offset): mixed
     {
         return $this->{$offset};
     }
@@ -211,10 +188,8 @@ class Result implements \ArrayAccess, ResultInterface
      * @param string $name Name of params to retrieve
      *
      * @throws \OutOfRangeException
-     *
-     * @return mixed
      */
-    public function __get($name)
+    public function __get($name): mixed
     {
         if (!property_exists($this, $name)) {
             throw new \OutOfRangeException(sprintf('Unknown field "%s"', $name));
@@ -229,13 +204,11 @@ class Result implements \ArrayAccess, ResultInterface
      * @param string $name  Name of params to retrieve
      * @param mixed  $value Value to set
      *
-     * @throws \LogicException
-     *
-     * @return void
+     * @throws LogicException
      */
-    public function __set($name, $value)
+    public function __set($name, mixed$value): void
     {
-        throw new \LogicException("Can't modify an immutable object.");
+        throw new LogicException("Can't modify an immutable object.");
     }
 
     /**
@@ -244,13 +217,11 @@ class Result implements \ArrayAccess, ResultInterface
      * @param mixed $offset The offset to assign the value to
      * @param mixed $value  Value to set
      *
-     * @throws \LogicException
-     *
-     * @return void
+     * @throws LogicException
      */
-    public function offsetSet($offset, $value)
+    public function offsetSet(mixed $offset, mixed $value): void
     {
-        throw new \LogicException(
+        throw new LogicException(
             sprintf("Can't modify an immutable object. You tried to set value '%s' to field '%s'.", $value, $offset)
         );
     }
@@ -260,22 +231,18 @@ class Result implements \ArrayAccess, ResultInterface
      *
      * @param mixed $offset The offset for unset
      *
-     * @throws \LogicException
-     *
-     * @return void
+     * @throws LogicException
      */
-    public function offsetUnset($offset)
+    public function offsetUnset(mixed $offset): void
     {
-        throw new \LogicException(sprintf("Can't modify an immutable object. You tried to unset '%s.'", $offset));
+        throw new LogicException(sprintf("Can't modify an immutable object. You tried to unset '%s.'", $offset));
     }
 
     /**
      * Get the domain name components as a native PHP array. The returned array will contain these keys: 'subdomain',
      * 'domain' and 'tld'.
-     *
-     * @return array
      */
-    public function toArray()
+    public function toArray(): array
     {
         return [
             'subdomain' => $this->subdomain,
@@ -286,11 +253,9 @@ class Result implements \ArrayAccess, ResultInterface
 
     /**
      * Get the domain name components as a JSON.
-     *
-     * @return string
      */
-    public function toJson()
+    public function toJson(): string
     {
-        return json_encode($this->toArray());
+        return json_encode($this->toArray(), JSON_THROW_ON_ERROR);
     }
 }
